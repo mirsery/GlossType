@@ -10,12 +10,12 @@ GlossType 是 macOS 15+ 的英文输入法：候选词带中文释义、候选�
 
 | 路径 | 内容 |
 |---|---|
-| `Sources/GlossTypeCore/` | 纯逻辑：输入会话状态机、候选引擎、词典 / 语言模型 / 学习记录（SQLite）、翻译调度、候选窗布局、设置。只依赖 Foundation 和 SQLite3，不引 AppKit，全部可单测 |
+| `Sources/GlossTypeCore/` | 纯逻辑：输入会话状态机、候选引擎、词典 / 语言模型 / 学习记录（SQLite）、翻译调度、候选窗布局、设置。只依赖 Foundation、CoreGraphics 和 SQLite3，不引 AppKit，全部可单测 |
 | `Sources/GlossTypeApp/` | 输入法进程：InputMethodKit 控制器、候选窗（AppKit + SwiftUI）、系统拼写检查适配、苹果翻译适配、设置窗、输入源注册 |
 | `Tests/GlossTypeCoreTests/` | Core 的 XCTest |
 | `scripts/` | 数据构建（`build_glossary.py`、`build_ngram.py`）、STDD 追溯检查、打包；`scripts/tests/` 是它们的 unittest |
 | `Packaging/` | `Info.plist`、图标，`make app` 用它们组装 `.app` |
-| `docs/` | 开发文档、数据格式说明 |
+| `docs/` | 开发文档、数据格式说明（[`docs/data-formats.md`](docs/data-formats.md)） |
 | `stdd/` | 规格与变更记录 |
 
 ## 常用命令
@@ -24,7 +24,7 @@ GlossType 是 macOS 15+ 的英文输入法：候选词带中文释义、候选�
 |---|---|
 | `make test` | 门禁：`swift test` + Python 测试 + STDD 追溯检查 |
 | `make data` | 下载 ECDICT，生成 `Data/glossary.sqlite`（释义 + 词频词表） |
-| `make lm CORPUS=<文本文件>` | 用一份语料（一行一句）生成 `Data/ngram.sqlite` |
+| `make lm CORPUS=<文本文件> CORPUS_NAME=<名称> CORPUS_LICENSE=<许可证>` | 用一份语料（一行一段）生成 `Data/ngram.sqlite` |
 | `make app` | release 构建并组装 `build/GlossType.app`（ad-hoc 签名） |
 | `make install` | 装到 `~/Library/Input Methods/` 并注册、启用输入源 |
 
@@ -36,6 +36,7 @@ GlossType 是 macOS 15+ 的英文输入法：候选词带中文释义、候选�
 - macOS 15 的 Translation 框架只能通过 SwiftUI 的 `.translationTask` 拿到会话，输入法进程里用一个不可见的宿主窗口承载；语言包没下载时不在输入法里触发下载（会弹到不可见窗口上），只提示去设置窗下载。
 - 重新安装后旧进程还在跑：`make install` 会先 `killall GlossType`。
 - Core 要能被 Swift 5.7 编译（维护者本机验证用），不使用 `if` 表达式、宏、`@Observable` 等新语法；包按 Swift 5 语言模式编译。
+- App 层的类不加 `@MainActor`：Swift 5 模式下，从非隔离的同步上下文（IMK 回调、NotificationCenter 闭包）调用显式 `@MainActor` 的成员会报错。主线程由 IMK 保证；只有 `async` 的翻译排空、语言包状态刷新标 `@MainActor`，用 `await` 调用。
 
 ## 提交
 

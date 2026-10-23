@@ -4,7 +4,7 @@
 
 - [x] S1 STDD 工具：追溯检查脚本与 make 入口
   - 场景：无（`none` 级工具，自带测试）
-  - 文件：`scripts/stdd_check.py`、`scripts/tests/test_stdd_check.py`（`make stdd-check` 入口随 S14 的 Makefile 一起加）
+  - 文件：`scripts/stdd_check.py`、`scripts/tests/test_stdd_check.py`、`Makefile` 的 `stdd-check` 目标（随 S14 加入）
   - 依赖：无
   - 可并行：是
 - [x] S2 词典数据生成
@@ -58,16 +58,16 @@
   - 依赖：S5
   - 可并行：是（与 S6–S10）
 - [x] S12 候选窗布局与设置
-  - 场景：`[panel.01]`–`[panel.04]`、`[settings.01]`–`[settings.03]`
+  - 场景：`[panel.01]`–`[panel.05]`、`[settings.01]`–`[settings.03]`
   - 文件：`Sources/GlossTypeCore/PanelLayout.swift`、`Preferences.swift`、对应测试
   - 依赖：无
   - 可并行：是
-- [ ] S13 App 层
+- [x] S13 App 层
   - 场景：`[translation.16]`、`[translation.17]`、`[panel.06]`–`[panel.08]`、`[settings.04]`、`[install.06]`、`[install.07]`（手动）
-  - 文件：`Sources/GlossTypeApp/*.swift`
+  - 文件：`Sources/GlossTypeApp/` 下的 `main.swift`、`AppEnvironment.swift`、`GlossTypeInputController.swift`、`CandidatePanel.swift`、`SystemSpelling.swift`、`AppleTranslator.swift`、`SettingsWindow.swift`、`InputSourceRegistration.swift`
   - 依赖：S10–S12
   - 可并行：否
-- [ ] S14 文档与构建入口
+- [x] S14 文档与构建入口
   - 场景：无
   - 文件：`README.md`、`docs/data-formats.md`、`THIRD_PARTY_NOTICES.md`、`Makefile`、`Package.swift`
   - 依赖：S1–S13
