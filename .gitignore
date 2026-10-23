@@ -1,0 +1,12 @@
+.DS_Store
+/.build/
+/build/
+/.swiftpm/
+*.xcodeproj/
+xcuserdata/
+DerivedData/
+__pycache__/
+*.pyc
+# 数据产物由 make data / make lm 生成，不进仓库
+/Data/*.sqlite
+/Data/downloads/

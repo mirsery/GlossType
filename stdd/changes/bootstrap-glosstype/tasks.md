@@ -1,0 +1,74 @@
+# 切片：从零实现 GlossType 输入法
+
+<!-- 每个切片 = 一到几个场景 → 对应测试 → 一个实现单元，30 分钟内做得完。按依赖排序，做完勾掉。 -->
+
+- [ ] S1 STDD 工具：追溯检查脚本与 make 入口
+  - 场景：无（`none` 级工具，自带测试）
+  - 文件：`scripts/stdd_check.py`、`scripts/tests/test_stdd_check.py`、`Makefile`
+  - 依赖：无
+  - 可并行：是
+- [ ] S2 词典数据生成
+  - 场景：`[dictdata.01]`–`[dictdata.12]`
+  - 文件：`scripts/build_glossary.py`、`scripts/tests/test_build_glossary.py`、`scripts/tests/fixtures/mini-ecdict.csv`、`Tests/GlossTypeCoreTests/Fixtures/tiny-glossary.sqlite`
+  - 依赖：无
+  - 可并行：是
+- [ ] S3 语言模型数据生成
+  - 场景：`[lmdata.01]`–`[lmdata.07]`、`[lmdata.10]`
+  - 文件：`scripts/build_ngram.py`、`scripts/tests/test_build_ngram.py`、`scripts/tests/fixtures/tiny-corpus.txt`、`Tests/GlossTypeCoreTests/Fixtures/tiny-ngram.sqlite`
+  - 依赖：无
+  - 可并行：是
+- [ ] S4 打包与 Info.plist
+  - 场景：`[install.01]`–`[install.05]`
+  - 文件：`Packaging/Info.plist`、`Packaging/GlossType.pdf`、`scripts/package_app.sh`、`scripts/tests/test_install.py`
+  - 依赖：S13 的控制器 `@objc` 名（先约定为 `GlossTypeInputController`）
+  - 可并行：是
+- [ ] S5 Core 基础：SQLite 封装、分词与大小写、当前句上下文
+  - 场景：作为 S6–S10 的基础，不单独对应场景
+  - 文件：`Sources/GlossTypeCore/SQLiteDatabase.swift`、`Text.swift`、`SentenceContext.swift`
+  - 依赖：无
+  - 可并行：否
+- [ ] S6 语言模型读取与加载
+  - 场景：`[lmdata.08]`、`[lmdata.09]`、`[prediction.18]`、`[prediction.19]`
+  - 文件：`Sources/GlossTypeCore/LanguageModel.swift`、`NGramLanguageModel.swift`、`ResourceLocator.swift`、对应测试
+  - 依赖：S3、S5
+  - 可并行：否
+- [ ] S7 词典与释义
+  - 场景：`[gloss.01]`–`[gloss.05]`
+  - 文件：`Sources/GlossTypeCore/Glossary.swift`、`Tests/GlossTypeCoreTests/GlossTests.swift`
+  - 依赖：S2、S5
+  - 可并行：是（与 S6）
+- [ ] S8 用户学习
+  - 场景：`[learning.01]`–`[learning.07]`
+  - 文件：`Sources/GlossTypeCore/UserHistoryStore.swift`、`CompositeLanguageModel.swift`、`Tests/GlossTypeCoreTests/LearningTests.swift`
+  - 依赖：S6
+  - 可并行：否
+- [ ] S9 候选引擎
+  - 场景：`[completion.01]`–`[completion.11]`、`[prediction.08]`–`[prediction.10]`、`[prediction.12]`
+  - 文件：`Sources/GlossTypeCore/SuggestionEngine.swift`、`Candidate.swift`、对应测试
+  - 依赖：S6、S7
+  - 可并行：否
+- [ ] S10 输入会话
+  - 场景：`[composition.01]`–`[composition.21]`、`[prediction.01]`–`[prediction.07]`、`[prediction.11]`、`[prediction.13]`–`[prediction.17]`、`[gloss.06]`、`[translation.01]`–`[translation.06]`、`[panel.05]`
+  - 文件：`Sources/GlossTypeCore/InputSession.swift`、`KeyEvent.swift`、`PanelModel.swift`、对应测试
+  - 依赖：S9
+  - 可并行：否
+- [ ] S11 翻译调度
+  - 场景：`[translation.07]`–`[translation.15]`
+  - 文件：`Sources/GlossTypeCore/TranslationCoordinator.swift`、`Tests/GlossTypeCoreTests/TranslationCoordinatorTests.swift`
+  - 依赖：S5
+  - 可并行：是（与 S6–S10）
+- [ ] S12 候选窗布局与设置
+  - 场景：`[panel.01]`–`[panel.04]`、`[settings.01]`–`[settings.03]`
+  - 文件：`Sources/GlossTypeCore/PanelLayout.swift`、`Preferences.swift`、对应测试
+  - 依赖：无
+  - 可并行：是
+- [ ] S13 App 层
+  - 场景：`[translation.16]`、`[translation.17]`、`[panel.06]`–`[panel.08]`、`[settings.04]`、`[install.06]`、`[install.07]`（手动）
+  - 文件：`Sources/GlossTypeApp/*.swift`
+  - 依赖：S10–S12
+  - 可并行：否
+- [ ] S14 文档与构建入口
+  - 场景：无
+  - 文件：`README.md`、`docs/data-formats.md`、`THIRD_PARTY_NOTICES.md`、`Makefile`、`Package.swift`
+  - 依赖：S1–S13
+  - 可并行：否
