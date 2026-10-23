@@ -9,17 +9,23 @@ final class CandidatePanelController {
     private var caretRect = NSRect.zero
     private lazy var hostingView = NSHostingView(rootView: CandidateView(model: nil, translation: nil))
     private lazy var panel: NSPanel = makePanel()
+    /// show 期间译文的变化只记下、不单独渲染，最后统一渲染一次。
+    private var batching = false
 
-    func show(_ model: PanelModel, translation: TranslationLine?, caretRect: NSRect) {
+    /// 换上新内容和位置；`updateTranslation` 里更新译文（会同步回调 `updateTranslation(_:)`），
+    /// 返回最新的译文行。整个过程只渲染一次，不会先用旧内容闪一下。
+    func show(_ model: PanelModel, caretRect: NSRect, updateTranslation: () -> TranslationLine?) {
         self.model = model
-        self.translation = translation
         self.caretRect = caretRect
+        batching = true
+        translation = updateTranslation()
+        batching = false
         render()
     }
 
     func updateTranslation(_ line: TranslationLine?) {
         translation = line
-        if model != nil { render() }
+        if model != nil, !batching { render() }
     }
 
     func hide() {

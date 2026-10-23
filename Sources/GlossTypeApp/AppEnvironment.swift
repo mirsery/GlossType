@@ -16,6 +16,8 @@ final class AppEnvironment {
     let glossary: SQLiteGlossary?
     let coordinator: TranslationCoordinator
     let panel = CandidatePanelController()
+    /// 最后一次显示候选窗的控制器。
+    weak var panelOwner: GlossTypeInputController?
     private(set) lazy var settings = SettingsWindowController(environment: self)
 
     private init() {

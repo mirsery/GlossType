@@ -98,7 +98,7 @@ SentenceContext 只记输入法自己看得到的文本：提交的词、透传�
 - 结果按源文本缓存（最近 200 条），命中直接显示不请求。
 - 等待时显示上一次的译文（变灰），失败显示「翻译失败」，语言包未安装显示「未下载英→中语言包，可在设置中下载」，关闭整句翻译时不显示也不请求。
 
-`AppleTranslator`（App，macOS 15 Translation 框架）：一个 1×1、透明、不接收鼠标的宿主窗口里放 SwiftUI 视图，用 `.translationTask(configuration)` 拿到 `TranslationSession`，在任务闭包里循环处理请求队列；队列空了任务结束，有新请求时 `invalidate()` 配置重启任务。每次请求前用 `LanguageAvailability` 查 en → zh-Hans 状态，未安装时直接回报「未安装」，不调用 `translate`（避免在不可见窗口上弹下载框）。设置窗里用同样的 `.translationTask` + `prepareTranslation()` 触发系统下载。
+`AppleTranslator`（App，macOS 15 Translation 框架）：一个 1×1、透明、不接收鼠标的宿主窗口里放 SwiftUI 视图，用 `.translationTask(configuration)` 拿到 `TranslationSession`，在任务闭包里循环处理请求队列；队列空了任务结束，有新请求时 `invalidate()` 配置重启任务。每次请求前用 `LanguageAvailability` 查 en → zh-Hans 状态，未安装时直接回报「未安装」，不调用 `translate`（避免在不可见窗口上弹下载框）。单个请求 8 秒没有结果就判失败并重建会话，宿主任务没起来、或系统在看不见的窗口上弹了下载确认时，请求不会一直挂着。会话在配置再次变化后不能再用，旧任务发现会话已重建就停手。设置窗里用同样的 `.translationTask` + `prepareTranslation()` 触发系统下载。
 
 ### 候选窗
 
@@ -145,7 +145,7 @@ SwiftPM 构建可执行文件，`scripts/package_app.sh` 组装 `.app`：`Conten
 ## 风险与回滚
 
 - **app 层没在本机编译过**：InputMethodKit / Translation 的 Swift 签名可能与 SDK 有出入。缓解：Core 在本机用 Swift 5.7 编译并跑测试；app 层用 macOS 13.1 SDK 做类型检查（Translation 部分用 `#if canImport(Translation)` 隔开）；另请独立复核。维护者首次编译若报错，按报错修。
-- **Translation 在输入法进程里的可用性**：后台进程里 `.translationTask` 是否稳定要真机验证（手动场景 `[translation.13]`）。不行就退化为只显示释义，接口不变。
+- **Translation 在输入法进程里的可用性**：后台进程里 `.translationTask` 是否稳定要真机验证（手动场景 `[translation.16]`）。不行就退化为只显示释义，接口不变。macOS 26 起有不依赖视图的 `TranslationSession(installedSource:target:)`，以后可以在 `#available` 后改用它，去掉宿主窗口。
 - **输入法进程常驻**：SQLite 连接常开、缓存有上限（翻译缓存 200 条），避免内存增长。
 - 回滚：从输入源里移除 GlossType，删除 `~/Library/Input Methods/GlossType.app`。
 

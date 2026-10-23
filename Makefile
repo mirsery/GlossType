@@ -55,10 +55,11 @@ app:
 
 ## 安装到 ~/Library/Input Methods 并注册、启用输入源
 install: app
-	-killall GlossType 2>/dev/null || true
 	mkdir -p "$(INSTALL_DIR)"
 	rm -rf "$(INSTALL_DIR)/GlossType.app"
 	cp -R $(APP) "$(INSTALL_DIR)/"
+	@# 复制完再杀旧进程：先杀的话，系统可能在复制前把旧版本又拉起来
+	-killall GlossType 2>/dev/null || true
 	"$(INSTALL_DIR)/GlossType.app/Contents/MacOS/GlossType" --register
 
 uninstall:

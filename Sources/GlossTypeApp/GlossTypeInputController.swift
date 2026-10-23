@@ -43,6 +43,18 @@ final class GlossTypeInputController: IMKInputController {
         hidePanel()
     }
 
+    /// 系统要求收起输入法的浮窗（例如客户端没走 deactivateServer 就切走了）。
+    override func hidePalettes() {
+        hidePanelIfOwned()
+        super.hidePalettes()
+    }
+
+    /// 客户端关闭，控制器即将释放。候选窗是共享的，只收起自己显示的那次。
+    override func inputControllerWillClose() {
+        hidePanelIfOwned()
+        super.inputControllerWillClose()
+    }
+
     override func recognizedEvents(_ sender: Any!) -> Int {
         let mask: NSEvent.EventTypeMask = [.keyDown, .leftMouseDown, .rightMouseDown, .otherMouseDown]
         return Int(mask.rawValue)
@@ -112,13 +124,25 @@ final class GlossTypeInputController: IMKInputController {
             hidePanel()
             return
         }
-        environment.coordinator.update(source: session.translationSource)
-        environment.panel.show(model, translation: environment.coordinator.line, caretRect: Self.caretRect(of: client))
+        let coordinator = environment.coordinator
+        let source = session.translationSource
+        environment.panel.show(model, caretRect: Self.caretRect(of: client)) {
+            coordinator.update(source: source)
+            return coordinator.line
+        }
+        environment.panelOwner = self
     }
 
     private func hidePanel() {
-        environment.coordinator.reset()
+        // 先收起再重置翻译：重置会回调 updateTranslation，候选窗已经没有内容就不会再渲染
         environment.panel.hide()
+        environment.coordinator.reset()
+        environment.panelOwner = nil
+    }
+
+    private func hidePanelIfOwned() {
+        guard environment.panelOwner === self else { return }
+        hidePanel()
     }
 
     /// 光标（或标记文本开头）所在行的屏幕矩形；应用给不出时为零矩形。

@@ -37,6 +37,8 @@ final class SettingsModel: ObservableObject {
         }
     }
     @Published var historyMessage = ""
+    /// 每次打开设置窗加一，让语言包状态重新检查（可能在后台下载完了）。
+    @Published private(set) var revision = 0
 
     let environment: AppEnvironment
 
@@ -48,6 +50,7 @@ final class SettingsModel: ObservableObject {
     func reload() {
         preferences = environment.preferencesStore.load()
         historyMessage = ""
+        revision += 1
     }
 
     func clearHistory() {
@@ -85,7 +88,7 @@ struct SettingsView: View {
                 }
             }
             Section("翻译语言包（英文 → 简体中文）") {
-                LanguagePackRow()
+                LanguagePackRow(revision: model.revision)
             }
             Section("数据") {
                 LabeledRow(title: "词典", value: model.environment.glossaryDescription)
@@ -121,10 +124,12 @@ private struct LabeledRow: View {
 
 /// 语言包状态和下载按钮。下载走系统的确认界面（prepareTranslation）。
 private struct LanguagePackRow: View {
+    let revision: Int
     #if canImport(Translation)
     @State private var configuration: TranslationSession.Configuration?
     #endif
     @State private var status = "检查中…"
+    @State private var preparing = false
 
     var body: some View {
         #if canImport(Translation)
@@ -132,22 +137,25 @@ private struct LanguagePackRow: View {
             Text(status).foregroundColor(.secondary)
             Spacer()
             Button("下载语言包") {
+                preparing = true
                 if configuration == nil {
                     configuration = TranslationSession.Configuration(source: AppleTranslator.source, target: AppleTranslator.target)
                 } else {
                     configuration?.invalidate()
                 }
             }
-            .disabled(status == "已安装")
+            .disabled(status == "已安装" || preparing)
         }
-        .task { await refresh() }
+        .task(id: revision) { await refresh() }
         .translationTask(configuration) { session in
             do {
                 try await session.prepareTranslation()
+                await refresh()
             } catch {
+                // 用户关掉进度界面时下载可能还在后台继续，下次打开设置窗会重新检查
                 status = "下载未完成：\(error.localizedDescription)"
             }
-            await refresh()
+            preparing = false
         }
         #else
         Text("当前系统不支持本地翻译").foregroundColor(.secondary)

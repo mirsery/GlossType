@@ -33,7 +33,8 @@ GlossType 是 macOS 15+ 的英文输入法：候选词带中文释义、候选�
 - Bundle ID 必须含 `inputmethod`（`io.github.mirsery.inputmethod.GlossType`），否则系统不把它当输入法。
 - `Packaging/Info.plist` 的 `InputMethodServerControllerClass` 必须等于控制器的 `@objc(...)` 名（`GlossTypeInputController`），由 `scripts/tests/test_install.py` 检查。
 - InputMethodKit 的回调都在主线程；Core 里的类型不做线程同步，调用方保证在主线程用。翻译回调要切回主线程再交给 Core。
-- macOS 15 的 Translation 框架只能通过 SwiftUI 的 `.translationTask` 拿到会话，输入法进程里用一个不可见的宿主窗口承载；语言包没下载时不在输入法里触发下载（会弹到不可见窗口上），只提示去设置窗下载。
+- macOS 15 的 Translation 框架只能通过 SwiftUI 的 `.translationTask` 拿到会话，输入法进程里用一个不可见的宿主窗口承载；语言包没下载时不在输入法里触发下载（会弹到不可见窗口上），只提示去设置窗下载。翻译请求 8 秒没结果判失败并重建会话。
+- Translation 框架也有一个 `TranslationError`：同时 import `Translation` 和 `GlossTypeCore` 的文件里，Core 的类型写全名（`GlossTypeCore.TranslationError`），否则类型查找有歧义、编译失败。
 - 重新安装后旧进程还在跑：`make install` 会先 `killall GlossType`。
 - Core 要能被 Swift 5.7 编译（维护者本机验证用），不使用 `if` 表达式、宏、`@Observable` 等新语法；包按 Swift 5 语言模式编译。
 - App 层的类不加 `@MainActor`：Swift 5 模式下，从非隔离的同步上下文（IMK 回调、NotificationCenter 闭包）调用显式 `@MainActor` 的成员会报错。主线程由 IMK 保证；只有 `async` 的翻译排空、语言包状态刷新标 `@MainActor`，用 `await` 调用。
