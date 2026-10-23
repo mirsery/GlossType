@@ -97,19 +97,23 @@ public final class UserHistoryStore: LanguageModel, LearningRecorder {
             let total = self.total(for: contextKey)
             guard total > 0 else { return [] }
             var items: [ScoredWord] = []
-            try? database.query("""
-                SELECT word, display, count FROM history
-                WHERE context = ? AND word >= ? AND word < ?
-                ORDER BY count DESC, word LIMIT ?
-                """, [.text(contextKey), .text(key), .text(TextRules.prefixUpperBound(key)), .integer(Int64(limit * 2))]) { row in
-                let count = row.int(2)
-                items.append(ScoredWord(
-                    word: row.string(0) ?? "",
-                    display: row.string(1) ?? "",
-                    score: Double(count) / Double(total),
-                    count: count,
-                    matchedOrder: 0
-                ))
+            do {
+                try database.query("""
+                    SELECT word, display, count FROM history
+                    WHERE context = ? AND word >= ? AND word < ?
+                    ORDER BY count DESC, word LIMIT ?
+                    """, [.text(contextKey), .text(key), .text(TextRules.prefixUpperBound(key)), .integer(Int64(limit * 2))]) { row in
+                    let count = row.int(2)
+                    items.append(ScoredWord(
+                        word: row.string(0) ?? "",
+                        display: row.string(1) ?? "",
+                        score: Double(count) / Double(total),
+                        count: count,
+                        matchedOrder: 0
+                    ))
+                }
+            } catch {
+                NSLog("GlossType: 查询学习记录失败：\(error)")
             }
             return items
         }
@@ -118,8 +122,13 @@ public final class UserHistoryStore: LanguageModel, LearningRecorder {
     private func total(for contextKey: String) -> Int {
         if let cached = totals[contextKey] { return cached }
         var total = 0
-        try? database.query("SELECT COALESCE(SUM(count), 0) FROM history WHERE context = ?", [.text(contextKey)]) { row in
-            total = row.int(0)
+        do {
+            try database.query("SELECT COALESCE(SUM(count), 0) FROM history WHERE context = ?", [.text(contextKey)]) { row in
+                total = row.int(0)
+            }
+        } catch {
+            NSLog("GlossType: 查询学习记录失败：\(error)")
+            return 0
         }
         totals[contextKey] = total
         return total
