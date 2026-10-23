@@ -45,6 +45,12 @@
 
 #### 场景 [learning.07] 学会词表里没有的新词
 
-- GIVEN 词表里没有 grokking
-- WHEN 用户提交过 grokking 之后再输入 grok
+- GIVEN 词表和系统拼写检查都不认识 grokking
+- WHEN 用户提交过两次 grokking 之后再输入 grok
 - THEN 候选 SHALL 包含 grokking
+
+#### 场景 [learning.08] 只提交过一次的生词不进候选
+
+- GIVEN 词表和系统拼写检查都不认识 helo，用户只提交过一次 helo（打错了）
+- WHEN 用户输入 hel
+- THEN 候选 SHALL 不包含 helo

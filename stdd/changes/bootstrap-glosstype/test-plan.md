@@ -85,6 +85,7 @@ Core 的测试用 XCTest，靠假的语言模型 / 词表 / 拼写检查 / 翻�
 | `[learning.05]` | integration | `Tests/GlossTypeCoreTests/LearningTests.swift` | 清除学习记录 |
 | `[learning.06]` | integration | `Tests/GlossTypeCoreTests/LearningTests.swift` | 用过两次的搭配排第一 |
 | `[learning.07]` | integration | `Tests/GlossTypeCoreTests/LearningTests.swift` | 学会词表里没有的新词 |
+| `[learning.08]` | integration | `Tests/GlossTypeCoreTests/LearningTests.swift` | 只提交过一次的生词不进候选 |
 | `[panel.01]` | unit | `Tests/GlossTypeCoreTests/PanelLayoutTests.swift` | 显示在光标下方 |
 | `[panel.02]` | unit | `Tests/GlossTypeCoreTests/PanelLayoutTests.swift` | 下方放不下时显示在上方 |
 | `[panel.03]` | unit | `Tests/GlossTypeCoreTests/PanelLayoutTests.swift` | 左右不超出屏幕 |
