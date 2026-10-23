@@ -46,6 +46,25 @@ final class CompletionTests: XCTestCase {
         XCTAssertTrue(session.candidates.contains("zygote"))
     }
 
+    func test_completion_12_inflections_hidden_when_lemma_matches() throws {
+        // 夹具里 helped / helping / helps 与 help 同排名，hello 排在它们后面
+        let glossary = try XCTUnwrap(SQLiteGlossary(path: Fixtures.glossaryPath))
+        let session = makeSession(lexicon: glossary)
+        session.type("hel")
+        XCTAssertTrue(session.candidates.contains("help"))
+        XCTAssertTrue(session.candidates.contains("hello"))
+        XCTAssertFalse(session.candidates.contains("helped"))
+        XCTAssertFalse(session.candidates.contains("helping"))
+        XCTAssertFalse(session.candidates.contains("helps"))
+    }
+
+    func test_completion_13_inflection_listed_when_lemma_does_not_match() throws {
+        let glossary = try XCTUnwrap(SQLiteGlossary(path: Fixtures.glossaryPath))
+        let session = makeSession(lexicon: glossary)
+        session.type("helpi")
+        XCTAssertTrue(session.candidates.contains("helping"))
+    }
+
     // MARK: 去重、大小写与数量
 
     func test_completion_06_same_word_from_two_sources_once() {

@@ -43,7 +43,7 @@
   - 依赖：S6
   - 可并行：否
 - [x] S9 候选引擎
-  - 场景：`[completion.01]`–`[completion.11]`、`[prediction.08]`–`[prediction.10]`、`[prediction.12]`
+  - 场景：`[completion.01]`–`[completion.13]`、`[prediction.08]`–`[prediction.10]`、`[prediction.12]`
   - 文件：`Sources/GlossTypeCore/SuggestionEngine.swift`、对应测试
   - 依赖：S6、S7
   - 可并行：否

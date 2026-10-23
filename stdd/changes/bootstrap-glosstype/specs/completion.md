@@ -36,6 +36,18 @@
 - WHEN 用户输入 zy
 - THEN 候选 SHALL 包含 zygote
 
+#### 场景 [completion.12] 原形也匹配时不列出变形
+
+- GIVEN 词表里有 help 和它的变形 helped、helping、helps（排名与 help 相同），还有排名靠后的 hello
+- WHEN 用户输入 hel
+- THEN 候选 SHALL 包含 help 和 hello，不包含 helped、helping、helps
+
+#### 场景 [completion.13] 原形不匹配时照常列出变形
+
+- GIVEN 词表里有 help 的变形 helping
+- WHEN 用户输入 helpi
+- THEN 候选 SHALL 包含 helping
+
 ### 需求：去重、大小写与数量
 
 #### 场景 [completion.06] 不同来源的同一个词只出现一次

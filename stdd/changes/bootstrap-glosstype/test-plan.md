@@ -36,6 +36,8 @@ Core 的测试用 XCTest，靠假的语言模型 / 词表 / 拼写检查 / 翻�
 | `[completion.09]` | unit | `Tests/GlossTypeCoreTests/CompletionTests.swift` | 全大写跟随输入 |
 | `[completion.10]` | unit | `Tests/GlossTypeCoreTests/CompletionTests.swift` | 专有名词保留自身大小写 |
 | `[completion.11]` | unit | `Tests/GlossTypeCoreTests/CompletionTests.swift` | 候选数量受设置限制 |
+| `[completion.12]` | integration | `Tests/GlossTypeCoreTests/CompletionTests.swift` | 原形也匹配时不列出变形 |
+| `[completion.13]` | integration | `Tests/GlossTypeCoreTests/CompletionTests.swift` | 原形不匹配时照常列出变形 |
 | `[prediction.01]` | unit | `Tests/GlossTypeCoreTests/PredictionTests.swift` | 提交词后显示下一个词 |
 | `[prediction.02]` | unit | `Tests/GlossTypeCoreTests/PredictionTests.swift` | 高阶上下文优先 |
 | `[prediction.03]` | unit | `Tests/GlossTypeCoreTests/PredictionTests.swift` | 句首联想首字母大写 |

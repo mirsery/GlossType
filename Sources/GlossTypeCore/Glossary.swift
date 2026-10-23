@@ -54,10 +54,16 @@ public final class SQLiteGlossary: Glossary, WordLexicon {
         guard limit > 0 else { return [] }
         let key = Self.key(prefix)
         var items: [LexiconWord] = []
+        let upper = TextRules.prefixUpperBound(key)
         do {
-            try database.query(
-                "SELECT word, display FROM entry WHERE word >= ? AND word < ? ORDER BY rank, word LIMIT ?",
-                [.text(key), .text(TextRules.prefixUpperBound(key)), .integer(Int64(limit))]
+            // 变形与原形同排名；原形也匹配前缀时只列原形，免得 helps、helped 占满候选
+            try database.query("""
+                SELECT word, display FROM entry
+                WHERE word >= ? AND word < ?
+                  AND NOT (lemma >= ? AND lemma < ? AND EXISTS (SELECT 1 FROM entry AS base WHERE base.word = entry.lemma))
+                ORDER BY rank, word LIMIT ?
+                """,
+                [.text(key), .text(upper), .text(key), .text(upper), .integer(Int64(limit))]
             ) { row in
                 items.append(LexiconWord(word: row.string(0) ?? "", display: row.string(1) ?? ""))
             }
