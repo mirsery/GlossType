@@ -1,6 +1,6 @@
 ---
 tier: full
-phase: build
+phase: verify
 gate1: 2026-10-24 维护者确认：开源加自用；不复用 SwiftType 的代码，只借鉴思路自研；macOS 15 以上；按 STDD 生成规格后编码，测试在另一台机器上做；语言模型的语料由维护者另定，要日常会话风格
 gate2: 2026-10-24 维护者指令豁免：「你只是生成 spec，然后编码」，design、场景与测试方案并入 Gate 3 一起复核
 gate3:
