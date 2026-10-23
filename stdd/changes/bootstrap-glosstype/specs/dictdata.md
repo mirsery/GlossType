@@ -42,7 +42,7 @@
 
 - GIVEN 上限设为 2
 - WHEN 生成词典
-- THEN 词典 SHALL 只有排名前 2 的词
+- THEN 词典的原形词条 SHALL 只有排名前 2 的词（变形另算）
 
 #### 场景 [dictdata.07] 同一个词多条时取排名高的
 
@@ -66,9 +66,9 @@
 
 #### 场景 [dictdata.10] 变形没有词频时用原形的排名
 
-- GIVEN went 没有词频，原形 go 的排名是 35
+- GIVEN went 没有词频，exchange 标明原形是 go
 - WHEN 生成词典
-- THEN went 的排名 SHALL 是 35
+- THEN went 的排名 SHALL 与 go 相同
 
 ### 需求：元数据与契约
 

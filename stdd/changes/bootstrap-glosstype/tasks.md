@@ -2,22 +2,22 @@
 
 <!-- 每个切片 = 一到几个场景 → 对应测试 → 一个实现单元，30 分钟内做得完。按依赖排序，做完勾掉。 -->
 
-- [ ] S1 STDD 工具：追溯检查脚本与 make 入口
+- [x] S1 STDD 工具：追溯检查脚本与 make 入口
   - 场景：无（`none` 级工具，自带测试）
   - 文件：`scripts/stdd_check.py`、`scripts/tests/test_stdd_check.py`、`Makefile`
   - 依赖：无
   - 可并行：是
-- [ ] S2 词典数据生成
+- [x] S2 词典数据生成
   - 场景：`[dictdata.01]`–`[dictdata.12]`
   - 文件：`scripts/build_glossary.py`、`scripts/tests/test_build_glossary.py`、`scripts/tests/fixtures/mini-ecdict.csv`、`Tests/GlossTypeCoreTests/Fixtures/tiny-glossary.sqlite`
   - 依赖：无
   - 可并行：是
-- [ ] S3 语言模型数据生成
+- [x] S3 语言模型数据生成
   - 场景：`[lmdata.01]`–`[lmdata.07]`、`[lmdata.10]`
   - 文件：`scripts/build_ngram.py`、`scripts/tests/test_build_ngram.py`、`scripts/tests/fixtures/tiny-corpus.txt`、`Tests/GlossTypeCoreTests/Fixtures/tiny-ngram.sqlite`
   - 依赖：无
   - 可并行：是
-- [ ] S4 打包与 Info.plist
+- [x] S4 打包与 Info.plist
   - 场景：`[install.01]`–`[install.05]`
   - 文件：`Packaging/Info.plist`、`Packaging/GlossType.pdf`、`scripts/package_app.sh`、`scripts/tests/test_install.py`
   - 依赖：S13 的控制器 `@objc` 名（先约定为 `GlossTypeInputController`）

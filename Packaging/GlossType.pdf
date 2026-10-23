@@ -1,0 +1,36 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 16 16] /Resources << /Font << /F1 5 0 R >> >> /Contents 4 0 R >>
+endobj
+4 0 obj
+<< /Length 232 >>
+stream
+0 0 0 rg 0 0 0 RG
+1.2 w
+2.6 1.6 m 13.4 1.6 l 14.2 1.6 14.4 1.8 14.4 2.6 c 14.4 13.4 l 14.4 14.2 14.2 14.4 13.4 14.4 c
+2.6 14.4 l 1.8 14.4 1.6 14.2 1.6 13.4 c 1.6 2.6 l 1.6 1.8 1.8 1.6 2.6 1.6 c h S
+BT /F1 11 Tf 3.9 4.1 Td (G) Tj ET
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000239 00000 n 
+0000000521 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+596
+%%EOF
