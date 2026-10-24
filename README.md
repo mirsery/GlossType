@@ -10,6 +10,13 @@ macOS 15 及以上的英文输入法：
 - 在本地学习你的用词习惯。
 - 全部离线运行：释义来自 ECDICT，翻译用苹果系统自带的本地翻译。
 
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/images/glosstype-eli5-dark.png">
+    <img src="docs/images/glosstype-eli5-light.png" width="800" alt="一图看懂 GlossType：打英文时候选词下面写着中文意思，拼错的词能认出来，整句话翻成中文；会猜下一个词，越用越懂你，全程不联网">
+  </picture>
+</p>
+
 ```
 See you tomo|
 ┌────────────────────────────────────────┐
