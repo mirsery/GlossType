@@ -57,6 +57,7 @@ final class FakeLanguageModel: LanguageModel {
 /// 按给定顺序当作词频排名；传入的字符串就是显示形式。
 final class FakeLexicon: WordLexicon {
     private let entries: [LexiconWord]
+    private(set) var completionQueries = 0
 
     init(_ words: [String]) {
         entries = words.map { LexiconWord(word: $0.lowercased(), display: $0) }
@@ -67,7 +68,8 @@ final class FakeLexicon: WordLexicon {
     }
 
     func completions(prefix: String, limit: Int) -> [LexiconWord] {
-        Array(entries.filter { $0.word.hasPrefix(prefix.lowercased()) }.prefix(limit))
+        completionQueries += 1
+        return Array(entries.filter { $0.word.hasPrefix(prefix.lowercased()) }.prefix(limit))
     }
 }
 

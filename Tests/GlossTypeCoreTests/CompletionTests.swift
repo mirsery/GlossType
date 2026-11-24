@@ -22,6 +22,18 @@ final class CompletionTests: XCTestCase {
         XCTAssertLessThan(you, your)
     }
 
+    func test_completion_02_frequency_lookup_only_fills_remaining_slots() {
+        let model = FakeLanguageModel()
+        model.addSentence("thank you", times: 3)
+        let lexicon = FakeLexicon(["your"])
+        let engine = SuggestionEngine(languageModel: model, lexicon: lexicon)
+
+        XCTAssertEqual(engine.completions(for: "yo", context: ["thank"], count: 2), ["yo", "you"])
+        XCTAssertEqual(lexicon.completionQueries, 0)
+        XCTAssertEqual(engine.completions(for: "yo", context: ["thank"], count: 3), ["yo", "you", "your"])
+        XCTAssertEqual(lexicon.completionQueries, 1)
+    }
+
     func test_completion_03_corrections_first_for_unknown_literal() {
         let spelling = FakeSpelling()
         spelling.correctionTable["teh"] = ["the", "ten"]

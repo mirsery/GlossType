@@ -54,28 +54,33 @@ public final class SuggestionEngine {
     public func completions(for typed: String, context: [String], count: Int) -> [String] {
         guard !typed.isEmpty, count > 0 else { return [] }
         var result = [typed]
+        guard count > 1 else { return result }
+
         func add(_ display: String) {
-            guard result.count < count, !display.isEmpty else { return }
+            guard !display.isEmpty else { return }
             let cased = TextRules.applyCasing(typed: typed, to: display)
             if !result.contains(cased) { result.append(cased) }
         }
-        let key = Self.key(typed)
 
-        if !isKnownWord(typed) {
-            for correction in (spelling?.corrections(for: typed) ?? []).prefix(Self.maxCorrections) {
+        if let spelling, !isKnownWord(typed) {
+            for correction in spelling.corrections(for: typed).prefix(Self.maxCorrections) {
                 add(correction)
+                if result.count == count { return result }
             }
         }
+        // 后续来源只会补位。候选已满时，无需在按键回调里继续查词。
+        let key = Self.key(typed)
         for item in languageModel?.nextWords(after: context, prefix: key, limit: count) ?? [] where isAcceptable(item) {
             add(item.display)
+            if result.count == count { return result }
         }
         for item in lexicon?.completions(prefix: key, limit: count) ?? [] {
             add(item.display)
+            if result.count == count { return result }
         }
-        if result.count < count {
-            for completion in spelling?.completions(for: typed) ?? [] {
-                add(completion)
-            }
+        for completion in spelling?.completions(for: typed) ?? [] {
+            add(completion)
+            if result.count == count { break }
         }
         return result
     }
