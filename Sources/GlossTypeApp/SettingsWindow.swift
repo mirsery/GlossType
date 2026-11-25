@@ -77,6 +77,7 @@ struct SettingsView: View {
                 Toggle("候选下方显示中文释义", isOn: $model.preferences.showGloss)
                 Toggle("候选窗底部显示整句翻译", isOn: $model.preferences.showTranslation)
                 Toggle("短语联想（⇧⇥ 接受）", isOn: $model.preferences.phrasePrediction)
+                Toggle("空格接受建议（拼错时提交纠错词，联想时再按空格接受联想词）", isOn: $model.preferences.spaceAcceptsSuggestion)
                 Stepper("候选数量：\(model.preferences.candidateCount)", value: $model.preferences.candidateCount, in: Preferences.candidateCountRange)
                 Stepper("翻译延迟：\(model.preferences.translationDelayMs) 毫秒", value: $model.preferences.translationDelayMs, in: Preferences.translationDelayRange, step: 100)
             }

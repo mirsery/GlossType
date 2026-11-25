@@ -54,7 +54,9 @@ final class CompositionTests: XCTestCase {
     func test_composition_07_space_commits_literal() {
         let spelling = FakeSpelling()
         spelling.correctionTable["helo"] = ["hello"]
-        let session = makeSession(lexicon: FakeLexicon(["hello", "help"]), spelling: spelling)
+        var preferences = Preferences()
+        preferences.spaceAcceptsSuggestion = false
+        let session = makeSession(lexicon: FakeLexicon(["hello", "help"]), spelling: spelling, preferences: preferences)
         session.type("helo")
         XCTAssertTrue(session.candidates.contains("hello"))
         XCTAssertEqual(session.handle(.space), KeyResult(handled: true, actions: [.insertText("helo ")]))
@@ -149,5 +151,72 @@ final class CompositionTests: XCTestCase {
         let session = session()
         XCTAssertEqual(session.handle(.character("5")), .passThrough)
         XCTAssertNil(session.panel)
+    }
+
+    // MARK: 空格接受建议
+
+    /// 开启空格接受建议；拼写检查把 helo 纠正为 hello。
+    private func spaceAcceptSession() -> InputSession {
+        let spelling = FakeSpelling()
+        spelling.correctionTable["helo"] = ["hello"]
+        return makeSession(lexicon: FakeLexicon(["hello", "help", "helpful", "tomorrow"]), spelling: spelling)
+    }
+
+    func test_composition_22_misspelling_highlights_correction() {
+        let session = spaceAcceptSession()
+        session.type("helo")
+        XCTAssertEqual(session.candidates[1], "hello")
+        XCTAssertEqual(session.highlightedIndex, 1)
+        XCTAssertEqual(session.panel?.highlightedIndex, 1)
+    }
+
+    func test_composition_23_space_commits_correction() {
+        let session = spaceAcceptSession()
+        session.type("helo")
+        XCTAssertEqual(session.handle(.space), KeyResult(handled: true, actions: [.insertText("hello ")]))
+    }
+
+    func test_composition_24_known_word_space_commits_literal() {
+        let session = spaceAcceptSession()
+        session.type("help")
+        XCTAssertTrue(session.candidates.contains("helpful"))
+        XCTAssertEqual(session.highlightedIndex, 0)
+        XCTAssertEqual(session.handle(.space), KeyResult(handled: true, actions: [.insertText("help ")]))
+    }
+
+    func test_composition_25_completion_only_space_commits_literal() {
+        let session = spaceAcceptSession()
+        session.type("tomo")
+        XCTAssertEqual(session.candidates[1], "tomorrow")
+        XCTAssertEqual(session.highlightedIndex, 0)
+        XCTAssertEqual(session.handle(.space), KeyResult(handled: true, actions: [.insertText("tomo ")]))
+    }
+
+    func test_composition_26_escape_commits_literal_when_correction_highlighted() {
+        let session = spaceAcceptSession()
+        session.type("helo")
+        XCTAssertEqual(session.highlightedIndex, 1)
+        XCTAssertEqual(session.handle(.escape), KeyResult(handled: true, actions: [.insertText("helo")]))
+    }
+
+    func test_composition_27_moved_highlight_wins() {
+        let session = spaceAcceptSession()
+        session.type("helo")
+        XCTAssertEqual(session.handle(.left), KeyResult(handled: true))
+        XCTAssertEqual(session.highlightedIndex, 0)
+        XCTAssertEqual(session.handle(.space), KeyResult(handled: true, actions: [.insertText("helo ")]))
+    }
+
+    func test_composition_27_typing_again_recomputes_highlight() {
+        let spelling = FakeSpelling()
+        spelling.correctionTable["hel"] = ["hell"]
+        spelling.correctionTable["helo"] = ["hello"]
+        let session = makeSession(lexicon: FakeLexicon(["hello", "hell"]), spelling: spelling)
+        session.type("hel")
+        session.handle(.left)
+        XCTAssertEqual(session.highlightedIndex, 0)
+        session.type("o")
+        XCTAssertEqual(session.highlightedIndex, 1)
+        XCTAssertEqual(session.candidates[1], "hello")
     }
 }

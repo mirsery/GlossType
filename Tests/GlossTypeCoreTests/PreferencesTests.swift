@@ -49,4 +49,17 @@ final class PreferencesTests: XCTestCase {
         XCTAssertEqual(reopened.candidateCount, 7)
         XCTAssertFalse(reopened.showGloss)
     }
+
+    // MARK: 空格接受建议
+
+    func test_settings_09_space_accepts_suggestion_defaults_on() {
+        XCTAssertTrue(PreferencesStore(defaults: defaults).load().spaceAcceptsSuggestion)
+    }
+
+    func test_settings_10_space_accepts_suggestion_persists() {
+        var preferences = Preferences()
+        preferences.spaceAcceptsSuggestion = false
+        PreferencesStore(defaults: defaults).save(preferences)
+        XCTAssertFalse(PreferencesStore(defaults: defaults).load().spaceAcceptsSuggestion)
+    }
 }
