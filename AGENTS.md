@@ -13,7 +13,7 @@ GlossType 是 macOS 15+ 的英文输入法：候选词带中文释义、候选�
 | `Sources/GlossTypeCore/` | 纯逻辑：输入会话状态机、候选引擎、词典 / 语言模型 / 学习记录（SQLite）、翻译调度、候选窗布局、设置。只依赖 Foundation、CoreGraphics 和 SQLite3，不引 AppKit，全部可单测 |
 | `Sources/GlossTypeApp/` | 输入法进程：InputMethodKit 控制器、候选窗（AppKit + SwiftUI）、系统拼写检查适配、苹果翻译适配、设置窗、输入源注册 |
 | `Tests/GlossTypeCoreTests/` | Core 的 XCTest |
-| `scripts/` | 数据构建（`build_glossary.py`、`build_ngram.py`）、STDD 追溯检查、打包；`scripts/tests/` 是它们的 unittest |
+| `scripts/` | 数据构建（`build_glossary.py`、`build_ngram.py`、`build_tatoeba_lm.py`）、STDD 追溯检查、打包；`scripts/tests/` 是它们的 unittest |
 | `Packaging/` | `Info.plist`、图标，`make app` 用它们组装 `.app` |
 | `docs/` | 开发文档、数据格式说明（[`docs/data-formats.md`](docs/data-formats.md)） |
 | `stdd/` | 规格与变更记录 |
@@ -24,6 +24,7 @@ GlossType 是 macOS 15+ 的英文输入法：候选词带中文释义、候选�
 |---|---|
 | `make test` | 门禁：`swift test` + Python 测试 + STDD 追溯检查 |
 | `make data` | 下载 ECDICT，生成 `Data/glossary.sqlite`（释义 + 词频词表） |
+| `make lm-tatoeba` | 下载 Tatoeba 英文句子，生成 4 阶 `Data/ngram.sqlite`（约 5 分钟、峰值内存约 3 GB）；`make lm-tatoeba-refresh` 重新下载 |
 | `make lm CORPUS=<文本文件> CORPUS_NAME=<名称> CORPUS_LICENSE=<许可证>` | 用一份语料（一行一段）生成 `Data/ngram.sqlite` |
 | `make app` | release 构建并组装 `build/GlossType.app`（ad-hoc 签名） |
 | `make install` | 装到 `~/Library/Input Methods/` 并注册、启用输入源 |

@@ -35,3 +35,12 @@ SOFTWARE.
 ## 致谢
 
 交互思路（候选窗显示释义与整句翻译、下一个词联想）受 [mgxv/SwiftType](https://github.com/mgxv/SwiftType) 启发。本仓库没有使用它的任何代码或数据。
+
+## Tatoeba
+
+`make lm-tatoeba` 从 [Tatoeba](https://tatoeba.org) 下载英文句子导出（`eng_sentences.tsv.bz2`），生成语言模型 `ngram.sqlite`。生成的文件随 `make app` 打进 `GlossType.app`。仓库本身不包含 Tatoeba 的句子或由它生成的模型。
+
+Tatoeba 的句子由 Tatoeba 社区贡献者创作，按 [Creative Commons Attribution 2.0 France（CC BY 2.0 FR）](https://creativecommons.org/licenses/by/2.0/fr/) 授权，其中部分句子以 CC0 1.0 发布。来源与许可说明见 <https://tatoeba.org/downloads> 和 <https://tatoeba.org/terms_of_use>。
+
+语言模型只保存从这些句子统计出的词频与 n-gram 计数，不保存原句。模型的 `meta` 表记录语料名称、下载日期和许可证，输入法设置窗中显示。
+

@@ -62,15 +62,26 @@ make install   # 构建 build/GlossType.app，装到 ~/Library/Input Methods 并
 
 ## 语言模型
 
-仓库**不带**语料，也不带训练好的语言模型。没有语言模型时，补全靠词频词表、系统拼写检查和你自己的学习记录，下一个词的联想要等学习记录积累起来才会出现。
+仓库**不带**语料，也不带训练好的语言模型。没有语言模型时，补全靠词频词表、系统拼写检查和你自己的学习记录，下一个词的联想要等学习记录积累起来才会出现。**建议装之前先生成一个。**
 
-### 生成语言模型
+### 一条命令：用 Tatoeba 例句生成（推荐）
+
+```sh
+make lm-tatoeba   # 下载 Tatoeba 英文句子（约 25 MB，200 万句日常短句），生成 4 阶模型
+make install      # Data/ 里有 ngram.sqlite 时会一起打包
+```
+
+生成约 5 分钟，峰值内存约 3 GB，模型约 90 MB。Tatoeba 的句子按 CC BY 2.0 FR 授权，署名见 [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md)；下载日期写进模型，设置窗里能看到。想换成最新的导出，运行 `make lm-tatoeba-refresh`。
+
+Tatoeba 例句里 Tom、Mary 出现得很多，联想偶尔会给出这两个名字；用一阵后，学习记录里你自己的用词会排到前面。
+
+### 用自己的语料生成
 
 准备一份 UTF-8 纯文本语料，一行一段。日常会话风格的语料比新闻语料更贴近平时打字。然后运行：
 
 ```sh
 make lm CORPUS=corpus.txt CORPUS_NAME="语料名称" CORPUS_LICENSE="语料许可证"
-make install   # Data/ 里有 ngram.sqlite 时会一起打包
+make install
 ```
 
 ### 不重新打包，直接换模型

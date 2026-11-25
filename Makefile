@@ -11,10 +11,14 @@ ECDICT_COMMIT := bc015ed2e24a7abef49fc6dbbb7fe32c1dadaf8b
 ECDICT_URL := https://raw.githubusercontent.com/skywind3000/ECDICT/$(ECDICT_COMMIT)/ecdict.csv
 ECDICT_CSV := $(DATA_DIR)/downloads/ecdict.csv
 
+# Tatoeba 英文句子导出（CC BY 2.0 FR）；每周更新、没有版本号，下载日期写进模型元数据
+TATOEBA_URL := https://downloads.tatoeba.org/exports/per_language/eng/eng_sentences.tsv.bz2
+TATOEBA_EXPORT := $(DATA_DIR)/downloads/eng_sentences.tsv.bz2
+
 CORPUS_NAME ?=
 CORPUS_LICENSE ?=
 
-.PHONY: test swift-test py-test stdd-check data lm app install uninstall clean
+.PHONY: test swift-test py-test stdd-check data lm lm-tatoeba lm-tatoeba-refresh app install uninstall clean
 
 ## 门禁：Swift 测试 + Python 测试 + STDD 追溯检查
 test: swift-test py-test stdd-check
@@ -47,6 +51,21 @@ lm:
 	mkdir -p $(DATA_DIR)
 	$(PYTHON) scripts/build_ngram.py --input "$(CORPUS)" --output $(DATA_DIR)/ngram.sqlite \
 		--corpus-name "$(CORPUS_NAME)" --license "$(CORPUS_LICENSE)"
+
+## 下载 Tatoeba 英文句子，生成 4 阶语言模型（约 5 分钟、峰值内存约 3 GB）
+lm-tatoeba: $(TATOEBA_EXPORT)
+	mkdir -p $(DATA_DIR)
+	$(PYTHON) scripts/build_tatoeba_lm.py --export $(TATOEBA_EXPORT) --output $(DATA_DIR)/ngram.sqlite
+
+$(TATOEBA_EXPORT):
+	mkdir -p $(dir $@)
+	curl -fL --retry 3 -o $@.tmp "$(TATOEBA_URL)"
+	mv $@.tmp $@
+
+## 重新下载最新的 Tatoeba 导出再生成
+lm-tatoeba-refresh:
+	rm -f $(TATOEBA_EXPORT)
+	$(MAKE) lm-tatoeba
 
 ## release 构建并组装 build/GlossType.app（Data/ 里有 ngram.sqlite 就一起打包）
 app:
