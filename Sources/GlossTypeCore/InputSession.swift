@@ -258,6 +258,10 @@ public final class InputSession {
             hide()
             return KeyResult(handled: true)
         case .space:
+            // 联想状态本身就是刚打过空格；开启空格接受建议时，再按空格接受高亮的联想词
+            if preferences.spaceAcceptsSuggestion, candidates.indices.contains(highlightedIndex) {
+                return commitAndPredict(words: [candidates[highlightedIndex]])
+            }
             context.append(" ")
             return dismissAndPass(resettingContext: false)
         case .backspace:
@@ -288,9 +292,11 @@ public final class InputSession {
 
     private func refreshCompletions() {
         let words = context.contextWords(maxCount: engine.contextLength)
-        candidates = engine.completions(for: composition, context: words, count: preferences.candidateCount)
+        let result = engine.completionsWithCorrections(for: composition, context: words, count: preferences.candidateCount)
+        candidates = result.candidates
         if candidates.isEmpty { candidates = [composition] }
-        highlightedIndex = 0
+        // 空格接受建议：原样拼错且有纠错时，高亮一开始就在纠错词上，空格提交的就是看到的高亮项
+        highlightedIndex = preferences.spaceAcceptsSuggestion && result.correctionCount > 0 && candidates.count > 1 ? 1 : 0
         highlightMoved = false
         phrase = preferences.phrasePrediction && candidates.count > 1
             ? engine.phrase(startingWith: candidates[1], after: words)

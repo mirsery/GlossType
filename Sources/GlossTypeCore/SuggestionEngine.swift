@@ -49,40 +49,56 @@ public final class SuggestionEngine {
         return spelling?.isCorrectlySpelled(word) == true
     }
 
+    /// 组词候选及其中纠错的个数。
+    public struct Completions: Equatable {
+        public var candidates: [String]
+        /// candidates 里紧跟原样的纠错个数（原样是已知词时为 0）。
+        public var correctionCount: Int
+    }
+
     /// 组词候选：原样排第一，后面是纠错（原样不认识时）、上下文续词、词频补全、拼写补全，
     /// 去重后截到 count 个（含原样）。
     public func completions(for typed: String, context: [String], count: Int) -> [String] {
-        guard !typed.isEmpty, count > 0 else { return [] }
-        var result = [typed]
-        guard count > 1 else { return result }
+        completionsWithCorrections(for: typed, context: context, count: count).candidates
+    }
 
-        func add(_ display: String) {
-            guard !display.isEmpty else { return }
+    /// 同 completions，另外给出纠错个数：纠错排在原样之后，下标 1...correctionCount。
+    public func completionsWithCorrections(for typed: String, context: [String], count: Int) -> Completions {
+        guard !typed.isEmpty, count > 0 else { return Completions(candidates: [], correctionCount: 0) }
+        var result = [typed]
+        var corrections = 0
+        guard count > 1 else { return Completions(candidates: result, correctionCount: 0) }
+
+        @discardableResult
+        func add(_ display: String) -> Bool {
+            guard !display.isEmpty else { return false }
             let cased = TextRules.applyCasing(typed: typed, to: display)
-            if !result.contains(cased) { result.append(cased) }
+            guard !result.contains(cased) else { return false }
+            result.append(cased)
+            return true
         }
 
         if let spelling, !isKnownWord(typed) {
             for correction in spelling.corrections(for: typed).prefix(Self.maxCorrections) {
-                add(correction)
-                if result.count == count { return result }
+                if add(correction) { corrections += 1 }
+                if result.count == count { return Completions(candidates: result, correctionCount: corrections) }
             }
         }
         // 后续来源只会补位。候选已满时，无需在按键回调里继续查词。
         let key = Self.key(typed)
         for item in languageModel?.nextWords(after: context, prefix: key, limit: count) ?? [] where isAcceptable(item) {
             add(item.display)
-            if result.count == count { return result }
+            if result.count == count { return Completions(candidates: result, correctionCount: corrections) }
         }
         for item in lexicon?.completions(prefix: key, limit: count) ?? [] {
             add(item.display)
-            if result.count == count { return result }
+            if result.count == count { return Completions(candidates: result, correctionCount: corrections) }
         }
         for completion in spelling?.completions(for: typed) ?? [] {
             add(completion)
             if result.count == count { break }
         }
-        return result
+        return Completions(candidates: result, correctionCount: corrections)
     }
 
     /// 下一个词：语言模型在上下文里有证据的续词（不含句末），按得分排序。

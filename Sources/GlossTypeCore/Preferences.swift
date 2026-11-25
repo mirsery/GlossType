@@ -9,6 +9,8 @@ public struct Preferences: Equatable {
     public var showTranslation = true
     public var phrasePrediction = true
     public var learningEnabled = true
+    /// 空格接受建议：拼错且有纠错时初始高亮落在纠错词上；联想时空格接受高亮联想词。
+    public var spaceAcceptsSuggestion = true
     /// 候选数量（组词时含原样）。
     public var candidateCount = 5 {
         didSet { candidateCount = Self.clamp(candidateCount, to: Self.candidateCountRange) }
@@ -34,6 +36,7 @@ public final class PreferencesStore {
         static let showTranslation = "showTranslation"
         static let phrasePrediction = "phrasePrediction"
         static let learningEnabled = "learningEnabled"
+        static let spaceAcceptsSuggestion = "spaceAcceptsSuggestion"
         static let candidateCount = "candidateCount"
         static let translationDelayMs = "translationDelayMs"
     }
@@ -50,6 +53,7 @@ public final class PreferencesStore {
         preferences.showTranslation = bool(Key.showTranslation) ?? preferences.showTranslation
         preferences.phrasePrediction = bool(Key.phrasePrediction) ?? preferences.phrasePrediction
         preferences.learningEnabled = bool(Key.learningEnabled) ?? preferences.learningEnabled
+        preferences.spaceAcceptsSuggestion = bool(Key.spaceAcceptsSuggestion) ?? preferences.spaceAcceptsSuggestion
         preferences.candidateCount = int(Key.candidateCount) ?? preferences.candidateCount
         preferences.translationDelayMs = int(Key.translationDelayMs) ?? preferences.translationDelayMs
         return preferences
@@ -60,6 +64,7 @@ public final class PreferencesStore {
         defaults.set(preferences.showTranslation, forKey: Key.showTranslation)
         defaults.set(preferences.phrasePrediction, forKey: Key.phrasePrediction)
         defaults.set(preferences.learningEnabled, forKey: Key.learningEnabled)
+        defaults.set(preferences.spaceAcceptsSuggestion, forKey: Key.spaceAcceptsSuggestion)
         defaults.set(preferences.candidateCount, forKey: Key.candidateCount)
         defaults.set(preferences.translationDelayMs, forKey: Key.translationDelayMs)
         NotificationCenter.default.post(name: Self.didChangeNotification, object: self)

@@ -138,4 +138,37 @@ final class PredictionTests: XCTestCase {
         XCTAssertTrue(session.candidates.isEmpty)
         XCTAssertEqual(session.panel?.items ?? [], [])
     }
+
+    // MARK: 空格接受联想词
+
+    func test_prediction_20_space_accepts_highlighted_prediction() {
+        let session = predicting(model([("how are you", 3)]), seed: "how are")
+        XCTAssertEqual(session.candidates.first, "you")
+        XCTAssertEqual(session.handle(.space), KeyResult(handled: true, actions: [.insertText("you ")]))
+    }
+
+    func test_prediction_21_space_accept_keeps_predicting() {
+        let session = predicting(model([("how are you", 3), ("are you ok", 3), ("you know", 1)]), seed: "how are")
+        session.handle(.space)
+        XCTAssertEqual(session.mode, .predicting)
+        XCTAssertEqual(session.candidates.first, "ok")
+    }
+
+    func test_prediction_22_space_passes_through_without_predictions() {
+        var preferences = Preferences()
+        preferences.showTranslation = true
+        let session = predicting(model([("how are you", 3)]), seed: "hello there", preferences: preferences)
+        XCTAssertEqual(session.mode, .predicting)
+        XCTAssertTrue(session.candidates.isEmpty)
+        XCTAssertEqual(session.handle(.space), .passThrough)
+    }
+
+    func test_prediction_23_space_dismisses_when_disabled() {
+        var preferences = Preferences()
+        preferences.spaceAcceptsSuggestion = false
+        let session = predicting(model([("how are you", 3)]), seed: "how are", preferences: preferences)
+        XCTAssertEqual(session.candidates.first, "you")
+        XCTAssertEqual(session.handle(.space), .passThrough)
+        XCTAssertNil(session.panel)
+    }
 }

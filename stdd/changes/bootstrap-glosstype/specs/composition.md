@@ -46,7 +46,7 @@
 
 #### 场景 [composition.07] 空格提交原样
 
-- GIVEN 正在组词 helo，建议词里有 hello
+- GIVEN 关闭了空格接受建议，正在组词 helo，建议词里有 hello
 - WHEN 用户按空格
 - THEN 输入法 SHALL 插入 "helo "
 
